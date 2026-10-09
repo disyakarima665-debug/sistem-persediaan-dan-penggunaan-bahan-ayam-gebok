@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#b5121b">
+  <title>Ayam Gebok Mas Bule - Sistem Persediaan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .replica-brand .replica-logo,
+    .welcome-logo { background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+    .replica-brand .replica-logo { width: 91px; height: 72px; object-fit: contain; }
+    .replica-brand-title,
+    .replica-header .replica-subtitle { font-family: Manrope, sans-serif !important; font-weight: 800 !important; letter-spacing: 0 !important; text-transform: uppercase !important; }
+    .replica-brand-title { font-size: 11px !important; line-height: 1.2; }
+    .welcome-logo { display: block; width: min(205px, 29%); height: 142px; flex: 0 0 auto; object-fit: contain; filter: drop-shadow(0 7px 9px #4b061244); }
+    .replica-app .alert-card .alert-row { min-height: 50px; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 7px; border-bottom: 1px solid #edf0f3; white-space: nowrap; }
+    .replica-app .alert-main { display: flex; min-width: 0; align-items: center; gap: 9px; }
+    .replica-app .alert-card .alert-row .alert-icon { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 7px; background: #fff4df; font-size: 13px; }
+    .replica-app .alert-main strong { overflow: hidden; min-width: 0; text-overflow: ellipsis; white-space: nowrap; }
+    .replica-app .alert-stock { white-space: nowrap; }
+    .replica-app .alert-card .alert-row .badge { min-width: 78px; justify-content: center; }
+    .replica-app .content-card .status-pill,
+    .replica-app .alert-card .alert-row .status-pill { display: inline-flex !important; width: 78px; min-width: 78px !important; height: 24px !important; min-height: 24px !important; flex: 0 0 78px; align-items: center; justify-content: center; padding: 0 8px; border: 1px solid #e7e9ec; border-radius: 999px; background: #f1f3f5; color: #505761; font-size: 9px; font-weight: 700; line-height: 1; white-space: nowrap; }
+    @media (max-width: 680px) {
+      .replica-brand { gap: 7px; padding: 3px 6px 12px; }
+      .replica-brand .replica-logo { width: 75px; height: 59px; }
+      .replica-brand-title { font-size: 10px !important; }
+      .replica-header .replica-subtitle { font-size: 8px; }
+      .welcome-logo { width: 82px; height: 70px; }
+      .replica-app .alert-card .alert-row { min-height: 48px; grid-template-columns: minmax(0, 1fr) auto auto; gap: 5px; padding: 6px 2px; }
+      .replica-app .alert-main { gap: 5px; }
+      .replica-app .alert-card .alert-row .alert-icon { width: 23px; height: 23px; font-size: 11px; }
+      .replica-app .alert-main strong { font-size: 9px; }
+      .replica-app .alert-stock { font-size: 8px !important; }
+      .replica-app .alert-card .alert-row .badge { grid-column: auto; min-width: 0; padding: 3px 5px; justify-self: end; font-size: 7px; white-space: nowrap; }
+      .replica-app .status-pill { min-width: 60px; height: 21px; padding: 0 5px; font-size: 8px; }
+      .replica-app .content-card .status-pill,
+      .replica-app .alert-card .alert-row .status-pill { width: 60px; min-width: 60px !important; height: 21px !important; min-height: 21px !important; flex-basis: 60px; padding: 0 5px; font-size: 8px; }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="./app.js" defer></script>
+</head>
+<body class="replica-app">
+  <aside class="replica-sidebar">
+    <div class="replica-brand"><img class="replica-logo" src="./logo.png" alt="Logo Ayam Gebok Mas Bule"><strong class="replica-brand-title">AYAM GEBOK<br>MAS BULE</strong></div>
+    <nav class="replica-nav" aria-label="Navigasi utama">
+      <button data-page="dashboard" class="active">🏠 <span>Dashboard</span></button>
+      <button data-page="inventory">📦 <span>Persediaan</span></button>
+      <button data-page="incoming">📥 <span>Barang Masuk</span></button>
+      <button data-page="outgoing">📤 <span>Barang Keluar</span></button>
+      <button data-page="recap">📊 <span>Rekap Harian</span></button>
+      <button data-page="history">📋 <span>Riwayat Transaksi</span></button>
+    </nav>
+    <div class="replica-connection"><i></i><span id="cloud-status">Menghubungkan...</span></div>
+  </aside>
+  <main class="replica-main">
+    <header class="replica-header"><div><h1 id="page-title">Dashboard</h1><p class="replica-subtitle">SISTEM PERSEDIAAN AYAM GEBOK MAS BULE</p></div><div class="replica-date"><span id="date-label"></span><strong>Online • sinkron aktif</strong></div></header>
+    <div class="replica-content" id="page-content"></div>
+  </main>
+  <dialog id="item-dialog" class="replica-dialog"><form id="item-form" class="replica-form"><header><h2 id="item-title">Tambah Barang</h2><button type="button" class="replica-close" data-close="item-dialog">×</button></header><label>Nama Barang<input name="name" required maxlength="100"></label><div class="replica-grid"><label>Satuan<select name="unit" required><option value="">Pilih satuan</option><option>Ekor</option><option>Kg</option><option>Liter</option><option>Botol</option><option>Pcs</option><option>Pack</option><option>Dus</option><option>Renceng</option></select></label><label>Stok Awal<input name="stock" type="number" min="0" step="0.01" required></label><label>Stok Minimum<input name="min" type="number" min="0" step="0.01" required></label><label>Harga Satuan<input name="price" type="number" min="0" step="1" required></label></div><footer><button type="button" class="replica-button neutral" data-close="item-dialog">Batal</button><button class="replica-button primary" type="submit">Simpan</button></footer></form></dialog>
+  <dialog id="transaction-edit-dialog" class="replica-dialog"><form id="transaction-edit-form" class="replica-form"><header><h2>Edit Transaksi</h2><button type="button" class="replica-close" data-close="transaction-edit-dialog">×</button></header><input name="id" type="hidden"><div class="replica-grid"><label>Jenis<select name="type"><option value="masuk">Barang Masuk</option><option value="keluar">Barang Keluar</option></select></label><label>Barang<select name="itemId" required></select></label><label id="edit-branch-field">Cabang<select name="branch"></select></label><label>Jumlah<input name="qty" type="number" min="0.01" step="0.01" required></label><label id="edit-price-field">Harga per Satuan<input name="unitPrice" type="number" min="0" step="1"></label><label>Tanggal<input name="date" type="date" required></label></div><label>Keterangan<input name="note"></label><footer><button type="button" class="replica-button neutral" data-close="transaction-edit-dialog">Batal</button><button class="replica-button primary" type="submit">Simpan Perubahan</button></footer></form></dialog>
+  <div class="replica-toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
